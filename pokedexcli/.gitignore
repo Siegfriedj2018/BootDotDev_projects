@@ -1,0 +1,19 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+pokedexcli
+repl.log
+
+# Test binary, built with `go test -c`
+*.test
+
+# A pattern that matches all go cache directories
+__go_build__
+
+# Output of the go toolchain
+.cache/
+.idea/
+.vscode/
