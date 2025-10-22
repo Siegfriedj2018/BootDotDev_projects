@@ -6,31 +6,43 @@ import (
 )
 
 func handlervalidateChirp(res http.ResponseWriter, req *http.Request) {
-	type params struct {
+	type chirps struct {
 		Body string `json:"body"`
 	}
 
 	type returnVals struct {
-		Valid bool `json:"valid"`
+		Cleaned_body string `json:"cleaned_body"`
+	}
+
+	profaneWords := map[string]bool{
+		"kerfuffle": 	false,
+		"sharbert": 	false,
+		"fornax": 		false,
 	}
 
 
-	parms := params{}
+	chirp := chirps{}
 	decoder := json.NewDecoder(req.Body)
-	err := decoder.Decode(&parms)
+	err := decoder.Decode(&chirp)
 	if err != nil {
 		respondWithError(res, http.StatusInternalServerError,
 											"Error decoding json", err)	
 		return
 	}
 
-	if len(parms.Body) > 140 {
+	if len(chirp.Body) > 140 {
 		respondWithError(res, http.StatusBadRequest,
 											"Chirp is too long", err)
 		return
 	}
 
+	cleaned, err := findReplaceBadWords(profaneWords, chirp.Body)
+	if err != nil {
+		respondWithError(res, http.StatusBadRequest, "Error replacing word", err)
+		return
+	}
+
 	respondWithJSON(res, http.StatusOK, returnVals{
-		Valid: true,
+		Cleaned_body: cleaned,
 	})
 } 
