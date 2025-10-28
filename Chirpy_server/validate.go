@@ -1,17 +1,17 @@
 package main
 
 import (
+	"bootdev_projects/chirpy_server/internal/database"
 	"encoding/json"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
-func handlervalidateChirp(res http.ResponseWriter, req *http.Request) {
+func (cfg *apiConfig) handlervalidateChirp(res http.ResponseWriter, req *http.Request) {
 	type chirps struct {
-		Body string `json:"body"`
-	}
-
-	type returnVals struct {
-		Cleaned_body string `json:"cleaned_body"`
+		Body 		string 		`json:"body"`
+		UserId 	uuid.UUID `json:"user_id"`
 	}
 
 	profaneWords := map[string]bool{
@@ -42,7 +42,22 @@ func handlervalidateChirp(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	respondWithJSON(res, http.StatusOK, returnVals{
-		Cleaned_body: cleaned,
+	params := database.CreateChirpParams{
+		Body: 		cleaned,
+		UserID: 	chirp.UserId,
+	}
+
+	savedChirp, err := cfg.databaseQ.CreateChirp(req.Context(), params)
+	if err != nil {
+		respondWithError(res, http.StatusInternalServerError, "Could not get chirp", err)
+		return
+	}
+
+	respondWithJSON(res, http.StatusCreated, Chirp{
+		ID: 					savedChirp.ID,
+		Created_at: 	savedChirp.CreatedAt,
+		Updated_at: 	savedChirp.UpdatedAt,
+		Body: 				cleaned,
+		User_ID: 			savedChirp.UserID,
 	})
 } 

@@ -1,0 +1,15 @@
+# Environment variables
+.env
+
+# Local database
+postgres/
+
+# Compiled Go binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# The project binary
+chirpy_server
