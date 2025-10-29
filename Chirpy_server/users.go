@@ -2,6 +2,7 @@ package main
 
 import (
 	"bootdev_projects/chirpy_server/internal/auth"
+	"bootdev_projects/chirpy_server/internal/database"
 	"encoding/json"
 	"net/http"
 )
@@ -20,22 +21,20 @@ func (cfg *apiConfig) handlerCreateUser(res http.ResponseWriter, req *http.Reque
 		return
 	}
 	
-	
-	newUser, err := cfg.databaseQ.CreateUser(req.Context(), userReq.Email)
-	if err != nil {
-		respondWithError(res, http.StatusInternalServerError, "Error with creating user", err)
-		return
-	}
-
 	hashed, err := auth.HashPassword(userReq.Password)
 	if err != nil {
 		respondWithError(res, http.StatusInternalServerError, "Error hashing password", err)
 		return
 	}
 
-	err = cfg.databaseQ.StorePassword(req.Context(), hashed)
+	params := database.CreateUserParams{
+		Email: userReq.Email,
+		HashedPassword: hashed,
+	}
+	
+	newUser, err := cfg.databaseQ.CreateUser(req.Context(), params)
 	if err != nil {
-		respondWithError(res, http.StatusInternalServerError, "Error saving hash", err)
+		respondWithError(res, http.StatusInternalServerError, "Error with creating user", err)
 		return
 	}
 

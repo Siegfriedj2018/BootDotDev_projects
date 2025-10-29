@@ -2,6 +2,7 @@ package main
 
 import (
 	"bootdev_projects/chirpy_server/internal/database"
+	"bootdev_projects/chirpy_server/internal/auth"
 	"database/sql"
 	"log"
 	"net/http"
@@ -19,7 +20,13 @@ type apiConfig struct {
 }
 
 func main() {
-	err := godotenv.Load()
+	wrote, err := auth.CreateJWTSecret()
+	if err != nil {
+		log.Fatalf("could not create jwt secret: %v", err)
+	}
+	log.Printf("Wrote to .env: %v", wrote)
+
+	err = godotenv.Load()
 	if err != nil {
 		log.Fatalf("Error loading env file: %v\n", err)
 	}

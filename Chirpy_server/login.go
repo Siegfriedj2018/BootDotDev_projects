@@ -44,5 +44,5 @@ func (cfg *apiConfig) handlerLogin(res http.ResponseWriter, req *http.Request) {
 		Email: 			user.Email,
 	}
 
-	respondWithJSON(res, http.StatusCreated, userRes)
+	respondWithJSON(res, http.StatusOK, userRes)
 }
