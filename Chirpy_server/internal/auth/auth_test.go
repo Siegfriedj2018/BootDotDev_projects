@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -122,5 +123,17 @@ func TestMakeAndValidateJWT(t *testing.T) {
 		if err == nil {
 			t.Error("ValidateJWT() expected an error for malformed token, but got nil")
 		}
+	})
+}
+
+func TestCreateJWTSecret(t *testing.T) {
+	t.Run("Create JWT Secret", func(t *testing.T) {
+		
+		bytesWrote, err := CreateJWTSecret()
+		if err != nil {
+			t.Fatalf("CreateJWTSecret() returned an err: %v", err)
+		}
+		fmt.Printf("t: %v\n", t)
+		fmt.Printf("Wrote: %v\n", bytesWrote)
 	})
 }
