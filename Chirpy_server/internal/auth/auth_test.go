@@ -133,7 +133,6 @@ func TestCreateJWTSecret(t *testing.T) {
 		if err != nil {
 			t.Fatalf("CreateJWTSecret() returned an err: %v", err)
 		}
-		fmt.Printf("t: %v\n", t)
 		fmt.Printf("Wrote: %v\n", bytesWrote)
 	})
 }
