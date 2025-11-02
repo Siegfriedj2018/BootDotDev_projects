@@ -30,26 +30,36 @@ func CreateJWTSecret() (int, error) {
 
 	fullPath := filepath.Join(homeDir, "my_bootdotdev_projects/BootDotDev_projects/Chirpy_server/.env")
 
-	// file, err := os.OpenFile(fullPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
-	// if err != nil {
-	// 	return 0, fmt.Errorf("file failed to open: %w", err)
-	// }
-
 	// defer file.Close()
 	file, err := os.ReadFile(fullPath)
 	if err != nil {
 		return 0, err
 	}
 
-	convertedBytes := string(file)
+	convertedBytes := strings.Split(string(file), "\n")
 	replaceString := jwtString + "\"" + keyString + "\""
 
-	// TODO: Fix the bug where it find jwtstring and just appends the key on previous key instead of replacing it
-	jwtSecret := strings.ReplaceAll(convertedBytes, jwtString, replaceString)
-	err = os.WriteFile(fullPath, []byte(jwtSecret), 0644)
+	var jwtSecret string
+	var newLines []string
+	isFound := false
+	for _, line := range convertedBytes {
+		if strings.Contains(line, jwtString) {
+			jwtSecret = strings.ReplaceAll(line, line, replaceString)
+			newLines = append(newLines, jwtSecret)
+			isFound = true
+			continue
+		}
+		newLines = append(newLines, line)
+	}
+	if !isFound {
+		newLines = append(newLines, replaceString)
+	}
+	newJWTFile := strings.Join(newLines, "\n")
+
+	err = os.WriteFile(fullPath, []byte(newJWTFile), 0644)
 	if err != nil {
 		return 0, err
 	}
 
-	return len(convertedBytes), nil
+	return len(newJWTFile), nil
 }
