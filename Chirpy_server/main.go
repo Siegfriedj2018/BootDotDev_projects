@@ -17,6 +17,7 @@ type apiConfig struct {
 	fileserverHits 	atomic.Int32
 	databaseQ 			*database.Queries
 	platform				string
+	jwtSecret				string
 }
 
 func main() {
@@ -45,10 +46,12 @@ func main() {
 	dbQueries := database.New(db)
 
 	platEnv := os.Getenv("PLATFORM")
+	jwtSecret := os.Getenv("JWT_SECRET")
 	apiCfg := apiConfig{
 		fileserverHits: atomic.Int32{},
 		databaseQ: 			dbQueries,
 		platform: 			platEnv,
+		jwtSecret: 			jwtSecret,
 	}
 
 	const ip = "localhost"

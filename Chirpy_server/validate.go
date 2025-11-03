@@ -1,17 +1,15 @@
 package main
 
 import (
+	"bootdev_projects/chirpy_server/internal/auth"
 	"bootdev_projects/chirpy_server/internal/database"
 	"encoding/json"
 	"net/http"
-
-	"github.com/google/uuid"
 )
 
 func (cfg *apiConfig) handlervalidateChirp(res http.ResponseWriter, req *http.Request) {
 	type chirps struct {
 		Body 		string 		`json:"body"`
-		UserId 	uuid.UUID `json:"user_id"`
 	}
 
 	profaneWords := map[string]bool{
@@ -42,9 +40,21 @@ func (cfg *apiConfig) handlervalidateChirp(res http.ResponseWriter, req *http.Re
 		return
 	}
 
+	token, err := auth.GetBearerToken(req.Header)
+	if err != nil {
+		respondWithError(res, http.StatusUnauthorized, "Could not get token", err)
+		return
+	}
+
+	userID, err := auth.ValidateJWT(token, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(res, http.StatusUnauthorized, "Invalid token", err)
+		return
+	}
+
 	params := database.CreateChirpParams{
 		Body: 		cleaned,
-		UserID: 	chirp.UserId,
+		UserID: 	userID,
 	}
 
 	savedChirp, err := cfg.databaseQ.CreateChirp(req.Context(), params)

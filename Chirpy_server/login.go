@@ -4,12 +4,14 @@ import (
 	"bootdev_projects/chirpy_server/internal/auth"
 	"encoding/json"
 	"net/http"
+	"time"
 )
 
 func (cfg *apiConfig) handlerLogin(res http.ResponseWriter, req *http.Request) {
 	type userData struct {
-			Password 	string `json:"password"`
-			Email 		string `json:"email"`
+		Password 		string `json:"password"`
+		Email 			string `json:"email"`
+		Expiration	int		 `json:"expires_in_seconds"`
 	}
 	
 	userReq := userData{}
@@ -37,11 +39,22 @@ func (cfg *apiConfig) handlerLogin(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if userReq.Expiration == 0 || userReq.Expiration > 60 {
+		userReq.Expiration = 60
+	}
+	
+	jwtString, err := auth.MakeJWT(user.ID, cfg.jwtSecret, time.Duration(userReq.Expiration) * time.Second)
+	if err != nil {
+		respondWithError(res, http.StatusInternalServerError, "Error making jwt string", err)
+		return
+	}
+	
 	userRes := &User{
 		ID: 				user.ID,
 		CreatedAt: 	user.CreatedAt,
 		UpdatedAt: 	user.UpdatedAt,
 		Email: 			user.Email,
+		Token: 			jwtString,
 	}
 
 	respondWithJSON(res, http.StatusOK, userRes)

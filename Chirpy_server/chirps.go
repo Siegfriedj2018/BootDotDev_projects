@@ -1,12 +1,9 @@
 package main
 
 import (
-	// "bootdev_projects/chirpy_server/internal/database"
 	"net/http"
 
 	"github.com/google/uuid"
-	// "time"
-	// "github.com/google/uuid"
 )
 
 func (cfg *apiConfig) handlerGetChirps(res http.ResponseWriter, req *http.Request) {
