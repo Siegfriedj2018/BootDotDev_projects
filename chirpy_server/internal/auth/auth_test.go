@@ -3,7 +3,6 @@ package auth
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -78,7 +77,7 @@ func TestMakeAndValidateJWT(t *testing.T) {
 	userID := uuid.New()
 
 	t.Run("Valid token", func(t *testing.T) {
-		tokenString, err := MakeJWT(userID, tokenSecret1, time.Hour)
+		tokenString, err := MakeJWT(userID, tokenSecret1)
 		if err != nil {
 			t.Fatalf("MakeJWT() returned an unexpected error: %v", err)
 		}
@@ -94,7 +93,7 @@ func TestMakeAndValidateJWT(t *testing.T) {
 	})
 
 	t.Run("Invalid signature", func(t *testing.T) {
-		tokenString, err := MakeJWT(userID, tokenSecret1, time.Hour)
+		tokenString, err := MakeJWT(userID, tokenSecret1)
 		if err != nil {
 			t.Fatalf("MakeJWT() returned an unexpected error: %v", err)
 		}
@@ -107,7 +106,7 @@ func TestMakeAndValidateJWT(t *testing.T) {
 
 	t.Run("Expired token", func(t *testing.T) {
 		// Create a token that expired an hour ago
-		tokenString, err := MakeJWT(userID, tokenSecret1, -time.Hour)
+		tokenString, err := MakeJWT(userID, tokenSecret1)
 		if err != nil {
 			t.Fatalf("MakeJWT() returned an unexpected error: %v", err)
 		}

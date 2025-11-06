@@ -1,17 +1,21 @@
 -- name: CreateToken :one
 INSERT INTO refresh_tokens (
-  id,
+  token,
   created_at,
   updated_at,
   user_id,
   expires_at,
   revoked_at
 ) VALUES (
-  gen_random_uuid(),
-  NOW(),
-  NOW(),
   $1,
+  NOW(),
+  NOW(),
   $2,
-  $3
+  $3,
+  $4
 )
 RETURNING *;
+
+-- name: GetToken :one
+SELECT * FROM refresh_tokens
+WHERE token = $1;

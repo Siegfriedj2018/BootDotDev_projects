@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -12,13 +14,13 @@ type jwtCustomClaim struct {
 	jwt.RegisteredClaims
 }
 
-func MakeJWT(userID uuid.UUID, tokenSecret string, expiresIn time.Duration) (string, error) {
+func MakeJWT(userID uuid.UUID, tokenSecret string) (string, error) {
 	claim := jwtCustomClaim{
 		"jwtChirpyClaim",
 		jwt.RegisteredClaims{
 			Issuer: 		"chirpy",
 			IssuedAt: 	jwt.NewNumericDate(time.Now()),
-			ExpiresAt: 	jwt.NewNumericDate(time.Now().Add(expiresIn)),
+			ExpiresAt: 	jwt.NewNumericDate(time.Now().Add(time.Hour * 1)),
 			Subject: 		userID.String(),
 			Audience: 	jwt.ClaimStrings{"chirpy-user-api"},
 		},
@@ -44,4 +46,11 @@ func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
 	}
 	
 	return uuid.Parse(uuidString)
+}
+
+func MakeRefreshToken() (string, error) {
+	key := make([]byte, 32)
+	rand.Read(key)
+	encodedToken := hex.EncodeToString(key)
+	return encodedToken, nil
 }
