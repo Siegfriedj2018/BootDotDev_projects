@@ -23,8 +23,8 @@ func (cfg *apiConfig) handlerRefresh(res http.ResponseWriter, req *http.Request)
 		respondWithError(res, http.StatusUnauthorized, "Could not find token", err)
 	}
 
-	if foundToken.ExpiresAt.Compare(time.Now()) == +1 {
-		respondWithError(res, http.StatusUnauthorized, "Token is expired", fmt.Errorf("token exipred, login again"))
+	if foundToken.ExpiresAt.Compare(time.Now()) == -1 || foundToken.RevokedAt.Valid {
+		respondWithError(res, http.StatusUnauthorized, "Token is expired or already revoked", fmt.Errorf("token exipred or revoked"))
 		return
 	}
 
@@ -40,5 +40,28 @@ func (cfg *apiConfig) handlerRefresh(res http.ResponseWriter, req *http.Request)
 }
 
 func (cfg *apiConfig) handlerRevoke(res http.ResponseWriter, req *http.Request) {
-	
+	token, err := auth.GetBearerToken(req.Header)
+	if err != nil {
+		respondWithError(res, http.StatusInternalServerError, "No token header found", err)
+		return
+	}
+
+	foundToken, err := cfg.databaseQ.GetToken(req.Context(), token)
+	if err != nil {
+		respondWithError(res, http.StatusInternalServerError, "Could not find token", err)
+		return
+	}
+
+	if foundToken.RevokedAt.Valid {
+		respondWithJSON(res, http.StatusNoContent, nil)
+		return
+	}
+
+	err = cfg.databaseQ.RevokeToken(req.Context(), foundToken.Token)
+	if err != nil {
+		respondWithError(res, http.StatusInternalServerError, "Something went wrong", err)
+		return
+	}
+
+	respondWithJSON(res, http.StatusNoContent, nil)
 }

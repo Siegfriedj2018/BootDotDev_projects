@@ -28,7 +28,7 @@ func CreateJWTSecret() (int, error) {
 		return 0, fmt.Errorf("could not get user home directory: %w", err)
 	}
 
-	fullPath := filepath.Join(homeDir, "my_bootdotdev_projects/BootDotDev_projects/Chirpy_server/.env")
+	fullPath := filepath.Join(homeDir, "my_bootdotdev_projects/BootDotDev_projects/chirpy_server/.env")
 
 	// defer file.Close()
 	file, err := os.ReadFile(fullPath)
