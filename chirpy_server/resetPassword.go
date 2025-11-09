@@ -15,7 +15,7 @@ func (cfg *apiConfig) handlerUpdatePassword(res http.ResponseWriter, req *http.R
 
 	tokenHeader, err := auth.GetBearerToken(req.Header)
 	if err != nil {
-		respondWithError(res, http.StatusBadRequest, "No token header found", err)
+		respondWithError(res, http.StatusUnauthorized, "No token header found", err)
 		return
 	}
 
@@ -28,6 +28,10 @@ func (cfg *apiConfig) handlerUpdatePassword(res http.ResponseWriter, req *http.R
 	userReq := NewEmailPass{}
 	decoder := json.NewDecoder(req.Body)
 	err = decoder.Decode(&userReq)
+	if err != nil {
+		respondWithError(res, http.StatusUnauthorized, "Error decoding user", err)
+		return
+	}
 
 	hashed, err := auth.HashPassword(userReq.Password)
 	if err != nil {
