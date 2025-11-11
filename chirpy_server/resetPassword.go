@@ -19,9 +19,15 @@ func (cfg *apiConfig) handlerUpdatePassword(res http.ResponseWriter, req *http.R
 		return
 	}
 
-	validToken, err := cfg.databaseQ.GetToken(req.Context(), tokenHeader)
+	userId, err := auth.ValidateJWT(tokenHeader, cfg.jwtSecret)
 	if err != nil {
-		respondWithError(res, http.StatusInternalServerError, "Error checking refresh token", err)
+		respondWithError(res, http.StatusUnauthorized, "Token is malformed or does not exist", err)
+		return
+	}	
+	
+	validUser, err := cfg.databaseQ.GetUserByID(req.Context(), userId)
+	if err != nil {
+		respondWithError(res, http.StatusUnauthorized, "Invalid User", err)
 		return
 	}
 
@@ -41,7 +47,7 @@ func (cfg *apiConfig) handlerUpdatePassword(res http.ResponseWriter, req *http.R
 	params := database.UpdateEmailPasswordParams{
 		Email: 					userReq.Email,
 		HashedPassword: hashed,
-		ID:							validToken.UserID,
+		ID:							validUser.ID,
 	}
 	updatedUser, err := cfg.databaseQ.UpdateEmailPassword(req.Context(), params)
 	if err != nil {

@@ -46,6 +46,7 @@ func (cfg *apiConfig) handlerLogin(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// this function will never err
 	refreshToken, _ := auth.MakeRefreshToken()
 
 	// creating params to pass to the create token

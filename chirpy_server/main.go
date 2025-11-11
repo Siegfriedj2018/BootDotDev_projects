@@ -25,6 +25,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("could not create jwt secret: %v", err)
 	}
+	log.Println("Previous JWT secret is gone, Please reset JWTs")
 	log.Printf("Wrote to .env: %v", wrote)
 
 	err = godotenv.Load()
@@ -63,20 +64,26 @@ func main() {
 	mux.Handle("/app/", apiCfg.middlewareMetricsInc(handler))
 	// mux.Handle("/assets", http.FileServer(http.Dir(".")))
 	
+	// Read
 	mux.HandleFunc("GET /api/healthz", healthCheck)
 	mux.HandleFunc("GET /admin/metrics", apiCfg.hitMetrics)
 	mux.HandleFunc("GET /api/chirps", apiCfg.handlerGetChirps)
 	mux.HandleFunc("GET /api/chirps/{chirpID}", apiCfg.handlerGetChirp)
 
+	// Create and update
 	mux.HandleFunc("POST /admin/reset", apiCfg.resetMetrics)
 	mux.HandleFunc("POST /api/chirps", apiCfg.handlervalidateChirp)
 	mux.HandleFunc("POST /api/users", apiCfg.handlerCreateUser)
 	mux.HandleFunc("POST /api/login", apiCfg.handlerLogin)
 	mux.HandleFunc("POST /api/refresh", apiCfg.handlerRefresh)
 	mux.HandleFunc("POST /api/revoke", apiCfg.handlerRevoke)
-
+  
+	// Update
 	mux.HandleFunc("PUT /api/users", apiCfg.handlerUpdatePassword)
 	
+	// Delete
+	mux.HandleFunc("DELETE /api/chirps/{chirpID}", apiCfg.handlerDeleteChirp)
+
 	serv := &http.Server{
 		Addr: ip + ":" + port,
 		Handler: mux,

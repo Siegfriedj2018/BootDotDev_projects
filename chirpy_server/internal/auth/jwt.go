@@ -48,6 +48,7 @@ func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
 	return uuid.Parse(uuidString)
 }
 
+// This function does not error right now
 func MakeRefreshToken() (string, error) {
 	key := make([]byte, 32)
 	rand.Read(key)
