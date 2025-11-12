@@ -18,6 +18,7 @@ type apiConfig struct {
 	databaseQ 			*database.Queries
 	platform				string
 	jwtSecret				string
+	polkaKey				string
 }
 
 func main() {
@@ -48,11 +49,14 @@ func main() {
 
 	platEnv := os.Getenv("PLATFORM")
 	jwtSecret := os.Getenv("JWT_SECRET")
+	polka := os.Getenv("POLKA_KEY")
+
 	apiCfg := apiConfig{
 		fileserverHits: atomic.Int32{},
 		databaseQ: 			dbQueries,
 		platform: 			platEnv,
 		jwtSecret: 			jwtSecret,
+		polkaKey: 			polka,
 	}
 
 	const ip = "localhost"
@@ -70,13 +74,14 @@ func main() {
 	mux.HandleFunc("GET /api/chirps", apiCfg.handlerGetChirps)
 	mux.HandleFunc("GET /api/chirps/{chirpID}", apiCfg.handlerGetChirp)
 
-	// Create and update
+	// Create and/or update
 	mux.HandleFunc("POST /admin/reset", apiCfg.resetMetrics)
 	mux.HandleFunc("POST /api/chirps", apiCfg.handlervalidateChirp)
 	mux.HandleFunc("POST /api/users", apiCfg.handlerCreateUser)
 	mux.HandleFunc("POST /api/login", apiCfg.handlerLogin)
 	mux.HandleFunc("POST /api/refresh", apiCfg.handlerRefresh)
 	mux.HandleFunc("POST /api/revoke", apiCfg.handlerRevoke)
+	mux.HandleFunc("POST /api/polka/webhooks", apiCfg.handlerUpgradeUser)
   
 	// Update
 	mux.HandleFunc("PUT /api/users", apiCfg.handlerUpdatePassword)

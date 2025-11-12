@@ -2,18 +2,43 @@ package main
 
 import (
 	"bootdev_projects/chirpy_server/internal/auth"
+	"bootdev_projects/chirpy_server/internal/database"
 	"net/http"
+	"sort"
 
 	"github.com/google/uuid"
 )
 
 func (cfg *apiConfig) handlerGetChirps(res http.ResponseWriter, req *http.Request) {
-	chirps, err := cfg.databaseQ.GetChirps(req.Context())
-	if err != nil {
-		respondWithError(res, http.StatusInternalServerError, "Something went wrong", err)
-		return
+	authorId := req.URL.Query().Get("author_id")
+	sortChirps := req.URL.Query().Get("sort")
+
+	var chirps []database.Chirp
+	var err error
+	if authorId != "" {
+		userId, err := uuid.Parse(authorId)
+		if err != nil {
+			respondWithError(res, http.StatusBadRequest, "Could not parse author id", err)
+			return
+		}
+		chirps, err = cfg.databaseQ.GetChirpsByUserID(req.Context(), userId)
+		if err != nil {
+			respondWithError(res, http.StatusInternalServerError, "Could not get chirps for user", err)
+			return
+		}
+	} else {
+		chirps, err = cfg.databaseQ.GetChirps(req.Context())
+		if err != nil {
+			respondWithError(res, http.StatusInternalServerError, "Something went wrong", err)
+			return
+		}
 	}
 
+	if sortChirps == "desc" {
+		sort.Slice(chirps, func (a, b int) bool {
+			return chirps[b].CreatedAt.Before(chirps[a].CreatedAt)
+		})
+	}	
 	newChirps := []Chirp{}
 	for _, sqlChirp := range chirps {
 		newChirp := Chirp{

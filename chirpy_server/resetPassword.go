@@ -56,10 +56,11 @@ func (cfg *apiConfig) handlerUpdatePassword(res http.ResponseWriter, req *http.R
 	}
 
 	userRes := &User{
-		ID:	 				updatedUser.ID,
-		CreatedAt: 	updatedUser.CreatedAt,
-		UpdatedAt: 	updatedUser.UpdatedAt,
-		Email: 			updatedUser.Email,
+		ID:	 				 updatedUser.ID,
+		CreatedAt: 	 updatedUser.CreatedAt,
+		UpdatedAt: 	 updatedUser.UpdatedAt,
+		Email: 			 updatedUser.Email,
+		IsChirpyRed: updatedUser.IsChirpyRed,
 	}
 	respondWithJSON(res, http.StatusOK, userRes)
 }
