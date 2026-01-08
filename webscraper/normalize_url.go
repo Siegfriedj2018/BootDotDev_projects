@@ -15,7 +15,7 @@ func normalizeURL(rawURL string) (string, error) {
 
 	fmt.Printf("Url: Host:%s Path:%s\n", parsedUrl.Host, parsedUrl.Path)
 	
-	if parsedUrl.Host == "" {
+	if parsedUrl.Host == "" && parsedUrl.Path != "" {
 		reparsedUrl := strings.Split(parsedUrl.Path, "/")
 		
 		if len(reparsedUrl) == 1 {

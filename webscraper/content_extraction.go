@@ -27,6 +27,7 @@ func getH1FromHTML(html string) string {
 		return ""
 	}
 
+	log.Println("Done!")
 	return doc.Find("h1").First().Text()
 }
 
@@ -45,11 +46,13 @@ func getFirstParagraphFromHTML(html string) string {
 	if foundText.Length() == 0 {
 		foundText = doc.Find("p").First()
 	}
+
+	log.Println("Done!")
 	return foundText.Text()
 }
 
 func getURLsFromHTML(htmlBody string, baseURL *url.URL) ([]string, error) {
-	foundUrls := make([]string, 0)
+	var foundUrls []string
 
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(htmlBody))
 	if err != nil {
@@ -81,6 +84,7 @@ func getURLsFromHTML(htmlBody string, baseURL *url.URL) ([]string, error) {
 		foundUrls = append(foundUrls, parsedUrl.String())
   })
 
+	log.Println("Done!")
 	return foundUrls, nil
 }
 
@@ -115,6 +119,7 @@ func getImagesFromHTML(htmlBody string, baseURL *url.URL) ([]string, error) {
 		foundImgs = append(foundImgs, parsedUrl.String())
   })
 
+	log.Println("Done!")
 	return foundImgs, nil
 }
 
@@ -130,13 +135,19 @@ func extractPageData(html, pageURL string) PageData {
 		return PageData{}
 	}
 
+	log.Println(" - Extracting h1...")
 	foundH1 := getH1FromHTML(html)
+
+	log.Println(" - Extracting first paragraph...")
 	firstPara := getFirstParagraphFromHTML(html)
+	
+	log.Println(" - Extracting urls...")
 	outLinks, err := getURLsFromHTML(html, currentUrl)
 	if err != nil {
 		log.Fatalf("Error parsing html links, %v\n", err)
 	}
 
+	log.Println(" - Extracting images...")
 	imageLinks, err := getImagesFromHTML(html, currentUrl)
 	if err != nil {
 		log.Fatalf("Error parsing image links, %v\n", err)
