@@ -22,7 +22,10 @@ func writeCSVReport(pages map[string]PageData, filename string) error {
 		return fmt.Errorf("Could not write header: %w", err)
 	}
 	for url, pageInfo := range pages {
-		err = wrt.Write([]string{url, pageInfo.H1, pageInfo.FirstParagraph, strings.Join(pageInfo.OutgoingLinks,";"), strings.Join(pageInfo.ImageURLs,";")})
+		headingTrim := strings.TrimSpace(strings.Trim(pageInfo.H1, "\""))
+		paraTrim := strings.TrimSpace(strings.Trim(pageInfo.FirstParagraph, "\""))
+
+		err = wrt.Write([]string{url, headingTrim, paraTrim, strings.Join(pageInfo.OutgoingLinks,";"), strings.Join(pageInfo.ImageURLs,";")})
 		if err != nil {
 			return fmt.Errorf("could not write row to file: %w", err)
 		}

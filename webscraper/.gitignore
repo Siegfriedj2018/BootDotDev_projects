@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+*.csv
 crawler
 
 # Test binary, built with `go test -c`
